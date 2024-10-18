@@ -20,8 +20,8 @@ const navigate = useNavigate();
 
 
     const [loginData, setLoginData] = useState({
-        email: "developer@vyzioninnovations.com",
-        password: "Vyzion@2025!",
+        email: "",
+        password: "",
     })
 
     const [errors, setErrors] = useState({
