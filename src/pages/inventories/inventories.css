@@ -1,0 +1,13 @@
+.main-content {
+    display: flex;
+}
+
+.pi-search:before {
+    content: "";
+}
+
+.loading-div {
+    text-align: center;
+    margin-top: 18rem;
+    font-size: 4rem;
+}
