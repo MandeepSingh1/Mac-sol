@@ -35,7 +35,7 @@ function Home() {
                 <div className="d-flex" style={{gap: "4rem"}}>
                 <div className="col-3">
                     <div className="card p-4">
-                        <h4 style={{alignSelf: "center"}}>Stock Count</h4>
+                        <h4 style={{alignSelf: "center"}}>Stocks Count</h4>
                         <p style={{alignSelf: "center", fontSize: "3rem", fontWeight: "600", color: "#6366F1"}}>{stocksCount}</p>
                     </div>
                 </div>
