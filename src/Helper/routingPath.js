@@ -4,8 +4,10 @@ const RoutingPaths = {
     home: "/home",
     inventoryList: '/inventories',
     addInventories: '/inventories/add',
-    usersList:'/users',
-    addUsers: '/users/add',
+    editInventories: '/inventories/edit',
+    suppliersList:'/suppliers',
+    addSuppliers: '/suppliers/add',
+    editSuppliers: '/suppliers/edit',
     profile: '/profile',
 
 }

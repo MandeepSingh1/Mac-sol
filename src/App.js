@@ -9,15 +9,15 @@ import Home from 'pages/home';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
-import UsersList from 'pages/users/users';
 import InventoryList from 'pages/inventories/inventories';
 import AddInventory from 'pages/inventories/addInventories/addInventories';
-import AddUsers from 'pages/users/addUsers/addUsers';
 import LoginPage from 'pages/login/login';
 import './style.css';
 import Profile from 'pages/profile/profile';
 import RoutingPaths from 'Helper/routingPath';
 import PrivateRoutes from 'Helper/privateRoute/privateRoute';
+import SuppliersList from 'pages/suppliers/suppliers';
+import AddSuppliers from 'pages/suppliers/addsuppliers/addSuppliers';
 
 
 function App() {
@@ -31,9 +31,15 @@ function App() {
       <Route path="/" element={<Layout />}>
           <Route path={RoutingPaths.home} index element={<Home />} />
           <Route path={RoutingPaths.inventoryList} element={<InventoryList />} />
+          
           <Route path={RoutingPaths.addInventories} element={<AddInventory />} />
-          <Route path={RoutingPaths.usersList} element={<UsersList />} />
-          <Route path={RoutingPaths.addUsers} element={<AddUsers />} />
+          <Route path={RoutingPaths.editInventories} element={<AddInventory />} />
+
+          <Route path={RoutingPaths.suppliersList} element={<SuppliersList />} />
+
+          <Route path={RoutingPaths.addSuppliers} element={<AddSuppliers />} />
+          <Route path={RoutingPaths.editSuppliers} element={<AddSuppliers />} />
+
           <Route path={RoutingPaths.profile} element={<Profile />} />
         </Route>
             

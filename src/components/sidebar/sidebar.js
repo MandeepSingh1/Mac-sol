@@ -23,8 +23,8 @@ const SidebarLayout = ({ children }) => {
     },
     {
       id:3,
-      title: 'Users',
-      path: RoutingPaths.usersList,
+      title: 'Suppliers',
+      path: RoutingPaths.suppliersList,
       icon: 'pi pi-fw pi-list me-2',
     },
     {

@@ -7,17 +7,18 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './addInventories.css';
-import { Utilsdb } from 'Helper/Utils/utilsDb';
-import { ref } from "firebase/database";
-import { child, push, update } from "firebase/database";
 import moment from 'moment';
 import RoutingPaths from 'Helper/routingPath';
 import UtilsTableName from 'Helper/Utils/UtilsDbTable';
-
+import { collection, addDoc, updateDoc, doc} from "firebase/firestore";
+import  { dbFirestore } from '../../../Helper/Utils/utils';
+import { toast } from 'react-toastify';
 
 
 
 const AddInventory = () => {
+
+    // variables start  
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading1, setLoading1] = useState(false);
     const [loading2, setLoading2] = useState(false);
@@ -26,8 +27,7 @@ const AddInventory = () => {
     const [inventoryHeading, setInventoryHeading] = useState("Add Inventory");
     const [buttonLabel, setButtonLabel] = useState("Save");
     const [date, setDate] = useState(new Date());
-
-
+    const [inventoryID, setInventoryID] = useState();
 
     const [addInventoryData, setAddInventoryData] = useState({
         item_code: "",
@@ -64,6 +64,7 @@ const AddInventory = () => {
         seller_phone_number: "",
         seller_address: "",
     })
+    // variables end
 
     const dropdownValues = [
         "stock", "sell"
@@ -163,6 +164,7 @@ const AddInventory = () => {
         }
     }, []);
 
+
     function setEditInventoryUI() {
 
         const mydate = moment(location?.state?.purchase_date, 'YYYY-MM-DD').toDate();
@@ -189,6 +191,7 @@ const AddInventory = () => {
         }))
         setInventoryHeading("Edit Inventory");
         setButtonLabel("Update");
+        setInventoryID(location.state.id);
     }
 
     const tapOnSave = (e) => {
@@ -198,18 +201,30 @@ const AddInventory = () => {
         setIsSubmitted(true);
         if (Object.keys(newErrors).length === 0) {
             setLoading1(true);
-            writeInventoriesApi().then((response) => {
-                // Data saved successfully!
-                setLoading1(false);
-                navigate(RoutingPaths.inventoryList);
-            }).catch((error) => {
-                // The write failed...
-            });
+            if (location.state) {
+                updateInventoriesApi().then((response) => {
+                    // Data saved successfully!
+                    setLoading1(false);
+                    navigate(RoutingPaths.inventoryList);
+                    toast.success("Inventory has been successfully updated.");
+                }).catch((error) => {
+                    // The write failed...
+                });
+            } else {
+                writeInventoriesApi().then((response) => {
+                    // Data saved successfully!
+                    setLoading1(false);
+                    navigate(RoutingPaths.inventoryList);
+                }).catch((error) => {
+                    // The write failed...
+                });
+            }
+
         }
     };
 
     const tapOnSaveNext = () => {
-        
+
         const newErrors = validateForm(addInventoryData);
         setErrors(newErrors);
         setIsSubmitted(true);
@@ -224,22 +239,41 @@ const AddInventory = () => {
                 // The write failed...
             });
         }
-
     };
 
-    // for backend Api
-    function writeInventoriesApi() {
-        // const recentPostsRef = query(ref(Utilsdb, 'inventories'), equalTo(id));
-
-        const inventoryId = push(child(ref(Utilsdb), UtilsTableName.inventories)).key;
-
-        // Write the new post's data simultaneously in the posts list and the user's post list.
-        const updates = {};
-        updates[UtilsTableName.inventories + inventoryId] = addInventoryData;
-
-        return update(ref(Utilsdb), updates);
+    function payload() {
+        const createdAt = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
+        const object = { ...addInventoryData, created_at: createdAt, updated_at:createdAt };
+        return object;
     }
 
+    // for backend Api
+    async function writeInventoriesApi() {
+
+        try {
+           const response = await addDoc(collection(dbFirestore, UtilsTableName.inventories), {
+                ...payload(),
+            });
+            return response;
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+
+    // for backend Api
+    async function updateInventoriesApi() {
+        const updatedPayload = payload();
+        updatedPayload.created_at = location.state.created_at;
+
+        try {
+          const response =  await updateDoc(doc(dbFirestore, UtilsTableName.inventories, inventoryID), {
+                ...updatedPayload,
+            });
+            return response;
+        } catch (e) {
+            console.error("Error updating document: ", e);
+        }
+    };
 
     return (
         <div className="grid text-start">
@@ -300,6 +334,8 @@ const AddInventory = () => {
                             {/* <InputText name="purchase_amount" value={addInventoryData.purchase_amount} onChange={inputChange} placeholder='Enter purchase amount' /> */}
                             {isSubmitted && (<small id="purchase_amount" className="p-error">{errors.purchase_amount} </small>)}
                         </div>
+
+
                         <div className="field col-12 col-md-6">
                             <label htmlFor="status">Status</label>
                             <Dropdown name="status"
@@ -373,7 +409,7 @@ const AddInventory = () => {
 
                     <div className="flex mt-3">
                         <Button label={buttonLabel} type='button' loading={loading1} onClick={tapOnSave} className='save-button me-3' />
-                        <Button label="Save + Next" type='button' severity="secondary" loading={loading2} onClick={tapOnSaveNext} className='save-next-button me-3' />
+                        {!location.state && <Button label="Save + Next" type='button' severity="secondary" loading={loading2} onClick={tapOnSaveNext} className='save-next-button me-3' />}
                         <Button label="Back" severity="secondary" onClick={() => navigate(-1)} className='back-button' />
                     </div>
                 </div>
@@ -385,3 +421,4 @@ const AddInventory = () => {
 };
 
 export default AddInventory;
+

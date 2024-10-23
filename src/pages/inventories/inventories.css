@@ -6,8 +6,21 @@
     content: "";
 }
 
-.loading-div {
-    text-align: center;
-    margin-top: 18rem;
-    font-size: 4rem;
+.tab-buttons {
+    margin-top: 2rem;
+    margin-right: 1rem;
+    width: 5rem;
+    font-weight: 700;
+    font-size: 1rem;
+    background-color: white;
+    border: none;
+}
+
+.tabs-div {
+    background: #f9fafb;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-width: 1px 0 1px 0;
+    padding: 1rem 1rem;
+    font-weight: 700;
 }
