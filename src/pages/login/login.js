@@ -112,7 +112,7 @@ const LoginPage = () => {
                                 <Password name="password" value={loginData.password} onChange={inputChange} id="confirmPassword" placeholder="Enter your password" toggleMask className="w-full" feedback={false} tabIndex={1}></Password>
                                 {isSubmitted && (<small id="password" className="p-error">{errors.password} </small>)}
                             </div>
-                            <Button label="Login" type='button' className="w-full mb-5 mt-3" loading={loading} onClick={tapOnLSignIn} />
+                            <Button style={{backgroundColor: "#6366F1"}} label="Login" type='button' className="w-full mb-5 mt-3" loading={loading} onClick={tapOnLSignIn} />
                             <ToastContainer />
                         </div>
                     </div>

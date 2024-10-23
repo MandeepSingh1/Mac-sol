@@ -24,3 +24,10 @@
     padding: 1rem 1rem;
     font-weight: 700;
 }
+
+.p-button {
+    color: #ffffff;
+    background: #6366F1;
+    border-top-right-radius:5px;
+    border-bottom-right-radius:5px;
+}

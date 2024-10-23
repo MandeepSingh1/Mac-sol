@@ -84,7 +84,7 @@ const SuppliersList = () => {
             text: `You want to delete this supplier "${suppliersData.name}"`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
+            confirmButtonColor: '#6366F1',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes!',
             cancelButtonText: 'No'
