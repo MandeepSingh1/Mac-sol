@@ -43,16 +43,6 @@ function InventoryList() {
     }, [])
 
     async function fetchInventoriesApiWithStatus(id) {
-        // if (id === 2 || id === 3) {
-        //     let q = query(collection(dbFirestore, UtilsTableName.inventories), 
-        //     where("status", "==", (id === 3) ? "sell" : "stock")
-        // );
-        //     const querySnapshot = await getDocs(q);
-        //     setInventories(querySnapshot.docs
-        //         .map((docs) => ({ ...docs.data(), id: docs.id })));
-        // } else {
-        //     fetchInventoriesApi();
-        // }
         switch (id) {
             case 1:
                 fetchInventoriesApi();
