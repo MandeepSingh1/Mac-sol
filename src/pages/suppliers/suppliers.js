@@ -26,7 +26,7 @@ const SuppliersList = () => {
     const [isLoading, setLoading] = useState(true);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [page, setPage] = useState(1);
-    const perPage = 10;
+    const perPage = 15;
 
     // variables end  
 

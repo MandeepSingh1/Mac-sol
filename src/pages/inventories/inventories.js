@@ -27,7 +27,7 @@ function InventoryList() {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [isLoading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
-    const perPage = 5;
+    const perPage = 15;
     const tabsData = [
         { id: 1, label: 'All' },
         { id: 2, label: 'Stock' },
