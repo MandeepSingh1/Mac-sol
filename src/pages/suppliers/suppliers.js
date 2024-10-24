@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import './suppliers.css';
 import RoutingPaths from "Helper/routingPath";
-import { collection, deleteDoc, doc, getDocs, where, query, and, or } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, where, query, and, or, Timestamp, orderBy, limitToLast, endBefore, startAfter, limit } from "firebase/firestore";
 import { dbFirestore } from "Helper/Utils/utils";
 import UtilsTableName from "Helper/Utils/UtilsDbTable";
 import { toast } from "react-toastify";
@@ -14,6 +14,7 @@ import Moment from "react-moment";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
+import { ButtonGroup } from "react-bootstrap";
 
 
 
@@ -24,25 +25,67 @@ const SuppliersList = () => {
     const [suppliersData, setSuppliersData] = useState([]);
     const [isLoading, setLoading] = useState(true);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const [page, setPage] = useState(1);
+    const perPage = 10;
+
     // variables end  
 
     // function start
     useEffect(() => {
         fetchSuppliersApi();
+
+        const publishDate = new Date();
+        console.log(Timestamp.fromDate(publishDate), Timestamp.fromDate(new Date()).toDate());
     }, [])
 
     async function fetchSuppliersApi() {
 
-        await getDocs(collection(dbFirestore, UtilsTableName.suppliers))
-            .then((querySnapshot) => {
-                // set data from docs
-                setSuppliersData(querySnapshot.docs
-                    .map((docs) => (
-                        { ...docs.data(), id: docs.id }
-                    )));
-            })
+        let q = query(collection(dbFirestore, UtilsTableName.suppliers),
+            orderBy('created_at', 'desc'),
+            limit(perPage))
+        const querySnapshot = await getDocs(q);
+        querySnapshot.docs.forEach(element => {
+            console.log()
+        });
+        setSuppliersData(querySnapshot.docs
+            .map((docs) => ({ ...docs.data(), id: docs.id })))
         setLoading(false);
-    }
+    };
+
+    // pagination
+    const showNext = ({ item }) => {
+        if (suppliersData.length === 0) {
+            alert("Thats all we have for now !")
+        } else {
+            const fetchNextData = async () => {
+                let q = query(collection(dbFirestore, UtilsTableName.suppliers),
+                    orderBy('created_at', 'desc'), startAfter(item.created_at),
+                    limit(perPage)
+                );
+                const querySnapshot = await getDocs(q);
+
+                setSuppliersData(querySnapshot.docs
+                    .map((docs) => ({ ...docs.data(), id: docs.id })))
+                setPage(page + 1);
+            };
+            fetchNextData();
+        }
+    };
+
+    const showPrevious = ({ item }) => {
+        const fetchPreviousData = async () => {
+            let q = query(collection(dbFirestore, UtilsTableName.suppliers),
+                orderBy('created_at', 'desc'),
+                endBefore(item.created_at),
+                limitToLast(perPage));
+            const querySnapshot = await getDocs(q);
+            setSuppliersData(querySnapshot.docs
+                .map((docs) => ({ ...docs.data(), id: docs.id })))
+            setPage(page - 1)
+
+        };
+        fetchPreviousData();
+    };
 
     const searchSuppliersApi = async (e) => {
         const searchText = e.target.value;
@@ -134,8 +177,9 @@ const SuppliersList = () => {
                         <h5 className="flex-grow-1">Suppliers List</h5>
                         <Button label="Add" type="button" onClick={tapOnAdd} className="add-button" />
                     </div>
-                    <DataTable scrollable scrollHeight="400px" className="mt-5 mb-5" value={suppliersData}
-                        paginator rows={5} header={header} emptyMessage="No data found.">
+                    {/* scrollable scrollHeight="400px" */}
+                    <DataTable className="mt-5 mb-3" value={suppliersData}
+                        header={header} emptyMessage="No data found.">
                         <Column field="name" header="Name" frozen className="font-bold"></Column>
                         <Column field="email" header="Email"></Column>
                         <Column field="phone" header="Phone Number"></Column>
@@ -151,6 +195,23 @@ const SuppliersList = () => {
                             </div>
                         }> </Column>
                     </DataTable>
+                    <ButtonGroup style={{ gap: "1rem", alignSelf: "center" }} className="mt-5">
+
+
+                        {
+                            //show previous button only when we have items
+                            page === 1 ? '' :
+                                <button onClick={() => showPrevious({ item: suppliersData[0] })} id="previous-button"><span className="pi pi-angle-left">Previous</span></button>
+                        }
+
+
+                        {
+                            //show next button only when we have items
+                            suppliersData.length < perPage ? '' :
+                                <button onClick={() => showNext({ item: suppliersData[suppliersData.length - 1] })} id="previous-button">Next<span className="pi pi-angle-right"></span></button>
+                        }
+
+                    </ButtonGroup>
                 </div>
             </div>
         </div>

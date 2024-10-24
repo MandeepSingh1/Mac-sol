@@ -10,7 +10,7 @@ import './addInventories.css';
 import moment from 'moment';
 import RoutingPaths from 'Helper/routingPath';
 import UtilsTableName from 'Helper/Utils/UtilsDbTable';
-import { collection, addDoc, updateDoc, doc} from "firebase/firestore";
+import { collection, addDoc, updateDoc, doc, Timestamp} from "firebase/firestore";
 import  { dbFirestore } from '../../../Helper/Utils/utils';
 import { toast } from 'react-toastify';
 
@@ -42,6 +42,8 @@ const AddInventory = () => {
         buyer_name: "",
         buyer_phone_number: "",
         buyer_address: "",
+        sell_date: "",
+        sell_amount: "",
         seller_name: "",
         seller_phone_number: "",
         seller_address: "",
@@ -60,6 +62,8 @@ const AddInventory = () => {
         buyer_name: "",
         buyer_phone_number: "",
         buyer_address: "",
+        sell_date: "",
+        sell_amount: "",
         seller_name: "",
         seller_phone_number: "",
         seller_address: "",
@@ -117,17 +121,17 @@ const AddInventory = () => {
         if (!data.serial_number) {
             errors.serial_number = "Please enter serial number";
         }
-        if (!data.purchase_date) {
-            errors.purchase_date = "Please choose purchase date";
-        }
-        if (!data.purchase_amount) {
-            errors.purchase_amount = "Please enter purchase amount";
-        }
         if (!data.status) {
             errors.status = "Please choose status";
         }
 
         if (data.status === 'sell') {
+            if (!data.purchase_date) {
+                errors.purchase_date = "Please choose purchase date";
+            }
+            if (!data.purchase_amount) {
+                errors.purchase_amount = "Please enter purchase amount";
+            }
             if (!data.buyer_name) {
                 errors.buyer_name = "Buyer name is required";
             }
@@ -141,6 +145,12 @@ const AddInventory = () => {
                 errors.buyer_address = "Enter buyer addresss";
             }
         } else {
+            if (!data.sell_date) {
+                errors.sell_date = "Please choose purchase date";
+            }
+            if (!data.sell_amount) {
+                errors.sell_amount = "Please enter purchase amount";
+            }
             if (!data.seller_name) {
                 errors.seller_name = "Seller name is required";
             }
@@ -187,6 +197,8 @@ const AddInventory = () => {
             seller_name: location.state.seller_name,
             seller_phone_number: location.state.seller_phone_number,
             seller_address: location.state.seller_address,
+            sell_date: location.state.sell_date,
+           sell_amount: location.state.sell_amount,
 
         }))
         setInventoryHeading("Edit Inventory");
@@ -242,7 +254,7 @@ const AddInventory = () => {
     };
 
     function payload() {
-        const createdAt = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
+        const createdAt = Timestamp.fromDate(new Date()).toMillis();
         const object = { ...addInventoryData, created_at: createdAt, updated_at:createdAt };
         return object;
     }
@@ -316,7 +328,25 @@ const AddInventory = () => {
                                 onInput={toInputUppercase} />
                             {isSubmitted && (<small id="serial_number" className="p-error">{errors.serial_number} </small>)}
                         </div>
+
                         <div className="field col-12 col-md-6">
+                            <label htmlFor="status">Status</label>
+                            <Dropdown name="status"
+                                value={addInventoryData.status}
+                                onChange={inputDropdownChange}
+                                options={dropdownValues}
+                                optionLabel="name"
+                                placeholder="Select status" />
+                            {isSubmitted && (<small id="status" className="p-error">{errors.status} </small>)}
+                        </div>  
+                    </div>
+
+                    {addInventoryData.status === "stock" &&
+                    <>
+                       <div >
+                            <h5 className='mb-4 mt-4'>Purchase Information</h5>
+                            <div className="p-fluid" >
+                            <div className="field col-12 col-md-6">
                             <label htmlFor="purchase_date">Purchase date</label>
                             <Calendar name="purchase_date" value={date} onChange={inputChange}
                                 showIcon
@@ -335,20 +365,9 @@ const AddInventory = () => {
                             {isSubmitted && (<small id="purchase_amount" className="p-error">{errors.purchase_amount} </small>)}
                         </div>
 
-
-                        <div className="field col-12 col-md-6">
-                            <label htmlFor="status">Status</label>
-                            <Dropdown name="status"
-                                value={addInventoryData.status}
-                                onChange={inputDropdownChange}
-                                options={dropdownValues}
-                                optionLabel="name"
-                                placeholder="Select status" />
-                            {isSubmitted && (<small id="status" className="p-error">{errors.status} </small>)}
+                            </div>
                         </div>
-                    </div>
 
-                    {addInventoryData.status === "stock" &&
                         <div >
                             <h5 className='mb-4 mt-4'>Seller</h5>
                             <div className="p-fluid" >
@@ -376,8 +395,34 @@ const AddInventory = () => {
                                 </div>
                             </div>
                         </div>
+                        </>
                     }
                     {addInventoryData.status === "sell" &&
+                    <>
+                       <div >
+                            <h5 className='mb-4 mt-4'>Sell Information</h5>
+                            <div className="p-fluid" >
+                            <div className="field col-12 col-md-6">
+                            <label htmlFor="sell_date">Sell date</label>
+                            <Calendar name="sell_date" value={date} onChange={inputChange}
+                                showIcon
+                                showButtonBar
+                                placeholder='dd/mm/yyyy' dateFormat="dd/mm/yy"
+
+                            />
+                            {isSubmitted && (<small id="sell_date" className="p-error">{errors.sell_date} </small>)}
+                        </div>
+                        <div className="field col-12 col-md-6">
+                            <label htmlFor="sell_amount">Sell amount</label>
+                            <InputText name='sell_amount' value={addInventoryData.sell_amount}
+                                onChange={inputChange} placeholder='Enter sell amount' />
+
+                            {isSubmitted && (<small id="purchase_amount" className="p-error">{errors.sell_amount} </small>)}
+                        </div>
+                            </div>
+                        </div>
+                    
+
                         <div >
                             <h5 className='mb-4 mt-4'>Buyer</h5>
                             <div className="p-fluid" >
@@ -405,6 +450,7 @@ const AddInventory = () => {
                                 </div>
                             </div>
                         </div>
+                        </>
                     }
 
                     <div className="flex mt-3">
@@ -421,4 +467,3 @@ const AddInventory = () => {
 };
 
 export default AddInventory;
-

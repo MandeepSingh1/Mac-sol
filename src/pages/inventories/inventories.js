@@ -12,9 +12,10 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import RoutingPaths from "Helper/routingPath";
 import UtilsTableName from "Helper/Utils/UtilsDbTable";
-import { collection, deleteDoc, doc, getDocs, where, query, and, or, getDoc, orderBy, startAt } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, where, query, and, or, orderBy,limitToLast, endBefore, limit, startAfter } from "firebase/firestore";
 import { dbFirestore } from "Helper/Utils/utils";
 import { toast } from "react-toastify";
+import { ButtonGroup } from "react-bootstrap";
 
 
 
@@ -25,24 +26,27 @@ function InventoryList() {
     const [inventories, setInventories] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [isLoading, setLoading] = useState(true);
-
+    const [page, setPage] = useState(1);
+    const perPage = 5;
     const tabsData = [
         { id: 1, label: 'All' },
         { id: 2, label: 'Stock' },
         { id: 3, label: 'Sell' },
     ];
+
     const [activeTab, setActiveTab] = useState(tabsData[0].id);
     // variables end
+
 
     // function start
 
     useEffect(() => {
         fetchInventoriesApi();
-        // const publishDate = new Date();
-        // console.log(Timestamp.fromDate(publishDate), Timestamp.fromDate(new Date()).toDate());
     }, [])
 
+    // fetch data with status
     async function fetchInventoriesApiWithStatus(id) {
+
         switch (id) {
             case 1:
                 fetchInventoriesApi();
@@ -57,25 +61,64 @@ function InventoryList() {
                     .map((docs) => ({ ...docs.data(), id: docs.id })));
                 break;
         }
-    }
+    };
 
+    // fetch data through api
+    async function fetchInventoriesApi() {
+
+        let q = query(collection(dbFirestore, UtilsTableName.inventories),
+            orderBy('created_at', 'desc'),
+            limit(perPage))
+        const querySnapshot = await getDocs(q);
+       
+        setInventories(querySnapshot.docs
+            .map((docs) => ({ ...docs.data(), id: docs.id })))
+        setLoading(false);
+    };
+
+
+    // pagination
+    const showNext = ({ item }) => {
+        if (inventories.length === 0) {
+            alert("Thats all we have for now!")
+        } else {
+            const fetchNextData = async () => {
+                let q = query(collection(dbFirestore, UtilsTableName.inventories),
+                    orderBy('created_at', 'desc'),
+                    limit(perPage),
+
+                    startAfter(item.created_at));
+                const querySnapshot = await getDocs(q);
+                setInventories(querySnapshot.docs
+                    .map((docs) => ({ ...docs.data(), id: docs.id })))
+                setPage(page + 1);
+            };
+            fetchNextData();
+        }
+    };
+
+    const showPrevious = ({ item }) => {
+        const fetchPreviousData = async () => {
+            let q = query(collection(dbFirestore, UtilsTableName.inventories),
+                orderBy('created_at', 'desc'),
+                endBefore(item.created_at),
+                limitToLast(perPage))
+            const querySnapshot = await getDocs(q);
+            setInventories(querySnapshot.docs
+                .map((docs) => ({ ...docs.data(), id: docs.id })))
+            setPage(page - 1)
+
+        };
+        fetchPreviousData();
+    };
+
+    // tabs are active
     const handleTabClick = async (id) => {
         setActiveTab(id);
         fetchInventoriesApiWithStatus(id);
     };
 
-    async function fetchInventoriesApi() {
 
-        await getDocs(collection(dbFirestore, UtilsTableName.inventories))
-            .then((querySnapshot) => {
-                // set data from docs
-                setInventories(querySnapshot.docs
-                    .map((docs) => (
-                        { ...docs.data(), id: docs.id }
-                    )));
-            })
-        setLoading(false);
-    }
 
     const searchInventoriesApi = async (e) => {
         console.log(e)
@@ -108,15 +151,6 @@ function InventoryList() {
             fetchInventoriesApi();
         }
     };
-
-    // async function pagination() {
-    //     const citiesRef = collection(dbFirestore, UtilsTableName.inventories);
-
-    //     const docSnap = await getDoc(doc(citiesRef, "item_code"));
-
-    //     const biggerThanSf = query(citiesRef, orderBy("population"), startAt(docSnap));
-    //     console.log(biggerThanSf);
-    // }
 
     const tapOnAdd = () => {
         navigate(RoutingPaths.addInventories);
@@ -203,7 +237,7 @@ function InventoryList() {
                         ))}
                     </div> */}
                     <>
-                        {/* mt-5 mb-5 */}
+
                         <DataTable className="mt-5" value={inventories}
                             header={header} emptyMessage="No data found." >
                             <Column field="item_code" header="Item Code"></Column>
@@ -226,8 +260,24 @@ function InventoryList() {
                                 </div>
                             }> </Column>
                         </DataTable>
-                    </>
+                        <ButtonGroup style={{gap: "1rem", alignSelf: "center"}} className="mt-5">
 
+                         
+                            {
+                                //show previous button only when we have items
+                                page === 1 ? '' :
+                                    <button onClick={() => showPrevious({ item: inventories[0] })} id="previous-button"><span className="pi pi-angle-left">Previous</span></button>
+                            }
+
+
+                            {
+                                //show next button only when we have items
+                                inventories.length < perPage ? '' :
+                                    <button onClick={() => showNext({ item: inventories[inventories.length - 1] })} id="previous-button">Next<span className="pi pi-angle-right"></span></button>
+                            }
+                            
+                        </ButtonGroup>
+                    </>
                 </div>
             </div>
         </div>
@@ -257,4 +307,3 @@ const priceBodyTemplate = (inventory) => {
 // UI end
 
 export default InventoryList;
-

@@ -5,7 +5,7 @@ import Layout from './components/layout/layout';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-import Home from 'pages/home';
+import Home from 'pages/home/home';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';

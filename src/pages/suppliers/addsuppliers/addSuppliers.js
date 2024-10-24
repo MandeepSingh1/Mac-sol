@@ -5,7 +5,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import './addSuppliers.css';
 import RoutingPaths from "Helper/routingPath";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, Timestamp, updateDoc } from "firebase/firestore";
 import { dbFirestore } from "Helper/Utils/utils";
 import UtilsTableName from "Helper/Utils/UtilsDbTable";
 import { toast } from "react-toastify";
@@ -140,8 +140,8 @@ const AddSuppliers = () => {
     };
 
     function payload() {
-        const createdAt = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
-        const object = { ...suppliersData, created_at: createdAt, updated_at: createdAt };
+        const createdAt = Timestamp.fromDate(new Date()).toMillis();
+        const object = { ...suppliersData, created_at:createdAt, updated_at:createdAt };
         return object;
     }
 
